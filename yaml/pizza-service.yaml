@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-service
+spec:
+  selector:
+    app: pizza-service
+  type: NodePort
+  ports:
+    - name: http
+      port: 8081
+      nodePort: 31001
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pizza-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pizza-service
+  template:
+    metadata:
+      labels:
+        app: pizza-service
+    spec:
+      containers:
+        - env:
+            - name: DB_SERVER
+              value: database
+            - name: MYSQL_DATABASE
+              value: pizzeria_db
+            - name: MYSQL_USER
+              value: root
+            - name: MYSQL_PASSWORD
+              value: "root"
+          image: sokols/pizza-service
+          name: user-service
+          ports:
+            - name: http
+              containerPort: 8081
+
+---
